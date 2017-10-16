@@ -47,15 +47,15 @@ def prepare_opensubtitles_data(data_dir, vocabulary_size):
     dev_path = os.path.join(data_dir, 'opensubtitles.dev')
 
     vocab_path = os.path.join(data_dir, "vocab%d.in" % vocabulary_size)
-    data_utils.create_vocabulary(vocab_path, train_path + ".in", vocabulary_size)
+    data_utils.create_vocabulary(vocab_path, train_path, vocabulary_size)
 
     # Create token ids for the training data.
     train_ids_path = train_path + (".ids%d.in" % vocabulary_size)
-    data_to_token_ids(train_path + ".in", train_ids_path, vocab_path)
+    data_to_token_ids(train_path, train_ids_path, vocab_path)
 
     # Create token ids for the development data.
     dev_ids_path = dev_path + (".ids%d.in" % vocabulary_size)
-    data_to_token_ids(dev_path + ".in", dev_ids_path, vocab_path)
+    data_to_token_ids(dev_path, dev_ids_path, vocab_path)
 
     return (train_ids_path, dev_ids_path, vocab_path)
 
