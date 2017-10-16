@@ -112,16 +112,12 @@ def get_dialog_dev_set_path(path):
 
 def basic_tokenizer(sentence, en_jieba=False):
   """Very basic tokenizer: split the sentence into a list of tokens."""
-  if en_jieba:
-    tokens = list([w.lower() for w in jieba.cut(sentence) if w not in [' ']])
-    return tokens
-  else:
-    words = []
-    for space_separated_fragment in sentence.strip().split():
-      if isinstance(space_separated_fragment, str):
-        space_separated_fragment = space_separated_fragment.encode()
-      words.extend(_WORD_SPLIT.split(space_separated_fragment))
-    return [w.lower() for w in words if w]
+  words = []
+  for space_separated_fragment in sentence.strip().split():
+    if isinstance(space_separated_fragment, str):
+      space_separated_fragment = space_separated_fragment.encode()
+    words.extend(_WORD_SPLIT.split(space_separated_fragment))
+  return [w.lower() for w in words if w]
   
 
 
@@ -344,6 +340,7 @@ def prepare_data(data_dir, from_train_path, to_train_path, from_dev_path, to_dev
   return (from_train_ids_path, to_train_ids_path,
           from_dev_ids_path, to_dev_ids_path,
           from_vocab_path, to_vocab_path)
+
 
 
 
