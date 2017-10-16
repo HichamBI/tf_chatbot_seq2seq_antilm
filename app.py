@@ -1,5 +1,5 @@
 # coding: utf-8
-import os, json, yaml, requests, jieba
+import os, json, yaml, requests
 from datetime import datetime
 from flask import Flask, request, render_template
 from OpenSSL import SSL

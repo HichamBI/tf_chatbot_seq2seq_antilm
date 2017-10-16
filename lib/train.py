@@ -7,6 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from six.moves import xrange  # pylint: disable=redefined-builtin
 from datetime import datetime
 from lib import seq2seq_model_utils, data_utils
+from lib.data import opensubtitles_utils
 
 
 def setup_workpath(workspace):
@@ -14,24 +15,28 @@ def setup_workpath(workspace):
     wp = "%s/%s" % (workspace, p)
     if not os.path.exists(wp): os.mkdir(wp)
 
-  data_dir = "%s/data" % (workspace)
-  # training data
-  if not os.path.exists("%s/chat.in" % data_dir):
-    n = 0
-    f_zip   = gzip.open("%s/train/chat.txt.gz" % data_dir, 'rt')
-    f_train = open("%s/chat.in" % data_dir, 'w')
-    f_dev   = open("%s/chat_test.in" % data_dir, 'w')
-    for line in f_zip:
-      f_train.write(line)
-      if n < 10000: 
-        f_dev.write(line)
-        n += 1
+  # data_dir = "%s/data" % (workspace)
+  # # training data
+  # if not os.path.exists("%s/chat.in" % data_dir):
+  #   n = 0
+  #   f_zip   = gzip.open("%s/train/chat.txt.gz" % data_dir, 'rt')
+  #   f_train = open("%s/chat.in" % data_dir, 'w')
+  #   f_dev   = open("%s/chat_test.in" % data_dir, 'w')
+  #   for line in f_zip:
+  #     f_train.write(line)
+  #     if n < 10000:
+  #       f_dev.write(line)
+  #       n += 1
 
 
 def train(args):
     print("[%s] Preparing dialog data in %s" % (args.model_name, args.data_dir))
     setup_workpath(workspace=args.workspace)
-    train_data, dev_data, _ = data_utils.prepare_dialog_data(args.data_dir, args.vocab_size)
+
+    if args.data_format == 'opensubtitles':
+        train_data, dev_data, _ = opensubtitles_utils.prepare_opensubtitles_data(args.data_dir, args.vocab_size)
+    else:
+        train_data, dev_data, _ = data_utils.prepare_dialog_data(args.data_dir, args.vocab_size)
 
     if args.reinforce_learn:
       args.batch_size = 1  # We decode one sentence at a time.
@@ -45,8 +50,14 @@ def train(args):
 
         # Read data into buckets and compute their sizes.
         print("Reading development and training data (limit: %d)." % args.max_train_data_size)
-        dev_set = data_utils.read_data(dev_data, args.buckets, reversed=args.rev_model)
-        train_set = data_utils.read_data(train_data, args.buckets, args.max_train_data_size, reversed=args.rev_model)
+        if args.data_format == 'opensubtitles':
+            dev_set = opensubtitles_utils.read_data(dev_data, args.buckets, reversed=args.rev_model)
+            train_set = opensubtitles_utils.read_data(train_data, args.buckets, args.max_train_data_size,
+                                             reversed=args.rev_model)
+        else:
+            dev_set = data_utils.read_data(dev_data, args.buckets, reversed=args.rev_model)
+            train_set = data_utils.read_data(train_data, args.buckets, args.max_train_data_size, reversed=args.rev_model)
+
         train_bucket_sizes = [len(train_set[b]) for b in xrange(len(args.buckets))]
         train_total_size = float(sum(train_bucket_sizes))
 

@@ -9,6 +9,12 @@ def params_setup(cmdline=None):
   parser.add_argument('--scope_name', type=str, help='separate namespace, for multi-models working together')
   parser.add_argument('--work_root', type=str, default='works', help='root dir for data, model, result save path')
 
+  # data params
+  parser.add_argument('--data_format', type=str, default='default', choices=('default', 'opensubtitles'), help='input data format')
+  parser.add_argument('--min_tokens', type=int, default=0, help='minimum number of tokens for each utterence')
+  parser.add_argument('--min_tokens_question', type=int, default=0, help='minimum number of tokens for only questions (will override --min_tokens)')
+  parser.add_argument('--min_tokens_response', type=int, default=0, help='minimum number of tokens for only responses (will override --min_tokens)')
+
   # training params
   parser.add_argument('--learning_rate', type=float, default=0.5, help='Learning rate.')
   parser.add_argument('--learning_rate_decay_factor', type=float, default=0.99, help='Learning rate decays by this much.')
