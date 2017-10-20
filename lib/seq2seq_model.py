@@ -55,6 +55,7 @@ class Seq2SeqModel(object):
                learning_rate,
                learning_rate_decay_factor,
                use_lstm=False,
+               use_attention=False,
                num_samples=512,
                forward_only=False,
                scope_name='seq2seq',
@@ -133,18 +134,32 @@ class Seq2SeqModel(object):
       if num_layers > 1:
         cell = tf.contrib.rnn.MultiRNNCell([single_cell() for _ in range(num_layers)])
 
-      # The seq2seq function: we use embedding for the input and attention.
-      def seq2seq_f(encoder_inputs, decoder_inputs, feed_previous):
-        return tf_seq2seq.embedding_attention_seq2seq(
-            encoder_inputs, 
-            decoder_inputs, 
-            cell,
-            num_encoder_symbols=source_vocab_size,
-            num_decoder_symbols=target_vocab_size,
-            embedding_size=size,
-            output_projection=output_projection,
-            feed_previous=feed_previous, #do_decode,
-            dtype=dtype)
+      if use_attention:
+          # The seq2seq function: we use embedding for the input and attention.
+          def seq2seq_f(encoder_inputs, decoder_inputs, feed_previous):
+            return tf_seq2seq.embedding_attention_seq2seq(
+                encoder_inputs,
+                decoder_inputs,
+                cell,
+                num_encoder_symbols=source_vocab_size,
+                num_decoder_symbols=target_vocab_size,
+                embedding_size=size,
+                output_projection=output_projection,
+                feed_previous=feed_previous, #do_decode,
+                dtype=dtype)
+      else:
+          def seq2seq_f(encoder_inputs, decoder_inputs, feed_previous):
+            return tf_seq2seq.embedding_rnn_seq2seq(
+                encoder_inputs,
+                decoder_inputs,
+                cell,
+                num_encoder_symbols=source_vocab_size,
+                num_decoder_symbols=target_vocab_size,
+                embedding_size=size,
+                output_projection=output_projection,
+                feed_previous=feed_previous, #do_decode,
+                dtype=dtype)
+
 
       # Feeds for inputs.
       self.encoder_inputs = []

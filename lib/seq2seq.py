@@ -368,14 +368,9 @@ def embedding_rnn_seq2seq(encoder_inputs,
       cell = core_rnn_cell.OutputProjectionWrapper(cell, num_decoder_symbols)
 
     if isinstance(feed_previous, bool):
-      return embedding_rnn_decoder(
-          decoder_inputs,
-          encoder_state,
-          cell,
-          num_decoder_symbols,
-          embedding_size,
-          output_projection=output_projection,
-          feed_previous=feed_previous)
+      output, state = embedding_rnn_decoder(decoder_inputs, encoder_state, cell, num_decoder_symbols, embedding_size,
+                                          output_projection=output_projection, feed_previous=feed_previous)
+      return output, state, encoder_state
 
     # If feed_previous is a Tensor, we construct 2 graphs and use cond.
     def decoder(feed_previous_bool):
@@ -405,7 +400,7 @@ def embedding_rnn_seq2seq(encoder_inputs,
     if nest.is_sequence(encoder_state):
       state = nest.pack_sequence_as(
           structure=encoder_state, flat_sequence=state_list)
-    return outputs_and_state[:outputs_len], state
+    return outputs_and_state[:outputs_len], state, encoder_state
 
 
 def embedding_tied_rnn_seq2seq(encoder_inputs,
