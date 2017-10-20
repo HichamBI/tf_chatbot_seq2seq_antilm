@@ -2,7 +2,7 @@
 import os, json, yaml, requests
 from datetime import datetime
 from flask import Flask, request, render_template
-from OpenSSL import SSL
+# from OpenSSL import SSL
 from random import random, choice
 
 app = Flask(__name__)
@@ -57,7 +57,7 @@ class ChatBot(object):
             
 
     def gen_response(self, sent, max_cand=100):
-        sent = " ".join([w.lower() for w in jieba.cut(sent) if w not in [' ']])
+        sent = " ".join([w.lower() for w in sent.split() if w not in [' ']])
         # if self.debug: return sent
         raw = get_predicted_sentence(self.args, sent, self.vocab, self.rev_vocab, self.model, self.sess, debug=False)
         # find bests candidates
@@ -72,7 +72,7 @@ class ChatBot(object):
 
 
     def gen_response_debug(self, sent, args=None):
-        sent = " ".join([w.lower() for w in jieba.cut(sent) if w not in [' ']])
+        sent = " ".join([w.lower() for w in sent.split() if w not in [' ']])
         raw = get_predicted_sentence(args, sent, self.vocab, self.rev_vocab, self.model, self.sess, debug=False, return_raw=True)
         return raw
 
@@ -135,15 +135,15 @@ def privacy():
 #---------------------------
 if __name__ == '__main__':
     # check ssl files
-    if not os.path.exists('ssl/server.crt'):
-        print("SSL certificate not found! (should placed in ./ssl/server.crt)")
-    elif not os.path.exists('ssl/server.key'):
-        print("SSL key not found! (should placed in ./ssl/server.key)")
-    else:
+    # if not os.path.exists('ssl/server.crt'):
+    #     print("SSL certificate not found! (should placed in ./ssl/server.crt)")
+    # elif not os.path.exists('ssl/server.key'):
+    #     print("SSL key not found! (should placed in ./ssl/server.key)")
+    # else:
         # initialize model
-        args = params_setup()
-        chatbot = ChatBot(args, debug=False)
-        # start server
-        context = ('ssl/server.crt', 'ssl/server.key')
-        app.run(host='0.0.0.0', port=443, debug=False, ssl_context=context)
+    args = params_setup()
+    chatbot = ChatBot(args, debug=False)
+    # start server
+    # context = ('ssl/server.crt', 'ssl/server.key')
+    app.run(host='0.0.0.0', port=8800, debug=False)
 
